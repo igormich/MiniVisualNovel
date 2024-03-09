@@ -48,8 +48,7 @@ public class MiniNovel extends JPanel {
         for (int i = 0; i < options.size(); i++) {
             if (targets.get(i).length() > 0) {
                 g.setFont(font);
-                if (underCursor == i)
-                    g.setFont(font.deriveFont(Font.BOLD));
+                if (underCursor == i) g.setFont(font.deriveFont(Font.BOLD));
                 g.drawString((n++) + ")  " + options.get(i), 50, getHeight() - fontHeight * (options.size() - i));
             } else
                 g.drawString(options.get(i), 50, getHeight() - fontHeight * (options.size() - i));
@@ -73,13 +72,18 @@ public class MiniNovel extends JPanel {
                     novel.run(t.get(Integer.parseInt(Character.toString(e.getKeyChar())) - 1));
             }
         });
-        novel.run("START#");
+        try {
+            novel.run(java.nio.file.Files.readAllLines(new File("state.txt").toPath()).get(0));
+        } catch (Exception e) {
+            novel.run("START#");
+        }
     }
 
     private void run(String node) {
         var data = game.stream().dropWhile(s -> !s.startsWith(node)).takeWhile(s -> s.startsWith("\t") || s.startsWith(node)).toList();
         try {
             background = javax.imageio.ImageIO.read(new File("./img/" + data.get(1).trim()));
+            java.nio.file.Files.writeString(new File("state.txt").toPath(), node);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
